@@ -1,0 +1,39 @@
+{
+  "horizon": {
+    "start": 0,
+    "end": 20
+  },
+  "venues": [
+    {
+      "id": "hall",
+      "capacity": 3
+    },
+    {
+      "id": "quiet",
+      "capacity": 1
+    }
+  ],
+  "bookings": [
+    {
+      "id": "A",
+      "venue": "hall",
+      "start": 0,
+      "end": 10,
+      "quantity": 2
+    },
+    {
+      "id": "B",
+      "venue": "hall",
+      "start": 5,
+      "end": 15,
+      "quantity": 2
+    },
+    {
+      "id": "C",
+      "venue": "hall",
+      "start": 15,
+      "end": 25,
+      "quantity": 3
+    }
+  ]
+}
