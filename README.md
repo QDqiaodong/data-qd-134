@@ -117,3 +117,38 @@ VE_MEMORY_FULL_SCALE=1 .venv/bin/python -m unittest tests.ve_test_memory -v   # 
 测试含独立小规模全量 oracle（`tests/ve_test_oracle.py`，以 `Fraction` 独立重算逐项核对，
 并强制极小缓冲触发多级归并）、乱序/重复/冲突、零与多回绕、跨费率跨月余数分配、
 空/重叠费率拒绝，以及子进程 ru_maxrss 大规模内存对照（`tests/ve_memory_probe.py`）。
+
+# 原料批次谱系与召回（venue-recall）
+
+独立于占用与电能管道的第三条管线：按原料批次记录收货、混匀与送达，以**精确有理数**
+维护每个批次对原始批次的组成比例；召回任一原始批次即永久隔离其全部后代剩余库存，
+并输出受影响送达与库存报告。Python 3.11+、仅标准库，输入输出契约见
+[recall-contract.md](docs/recall-contract.md)，持久化/计算结构与备选设计代价见
+[recall-impl.md](docs/recall-impl.md)。旧 `venue-occupancy`、`venue-energy` 命令与
+报告保持原样，三个包互不 import，本管道不从预订或电表数据推算原料。
+
+```sh
+.venv/bin/venue-recall init   --db run/recall.db --source fixtures/recall/init.json
+.venv/bin/venue-recall ingest --db run/recall.db --source fixtures/recall/operations.json
+.venv/bin/venue-recall recall --db run/recall.db --source fixtures/recall/recall.json
+.venv/bin/venue-recall report --db run/recall.db --output run/recall-report.json
+# 未安装时：PYTHONPATH=src python3 -m venue_recall.cli init|ingest|recall|report ...
+```
+
+要点：receive/blend/serve 三种操作每批 ≤20000 项、按数组顺序解释、整批提交或回滚；
+相同 op_id 重放忽略、冲突整批拒绝，重试不二次扣库存；混匀输出的组成以任意精度
+分数逐批物化（分母可超 64 位），禁止浮点、按克展开与祖先路径枚举；召回与领用在
+数据库写事务内串行判定，竞态等价于某一完整串行顺序；报告在同一读快照输出，
+受影响质量输出最简分数，原子替换且失败保留旧文件。样例预期报告（flour-b 质量
+守恒：库存 50+80+400 加送达 50+20 恰为 600 g）见契约文档。
+
+```sh
+.venv/bin/python -m unittest tests.vr_test_cli tests.vr_test_inventory \
+  tests.vr_test_genealogy tests.vr_test_recall tests.vr_test_concurrency \
+  tests.vr_test_locality -v
+```
+
+测试含真实 CLI 子进程、独立有理数 oracle（同源分叉合流、超 64 位分母、随机 op 流
+逐项核对）、30 层菱形反指数路径证明、库存逐项验收（部分领用/多输出/耗尽再建/
+超量/批中回滚）、召回联动（隔离整批、双根不重复计数、顺序无关、召回后重放忽略）、
+线程与进程双组召回-送达竞速、并发报告快照与提交前故障重试。

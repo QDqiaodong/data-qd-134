@@ -1,0 +1,14 @@
+{
+  "operations": [
+    {"op_id": "r1", "type": "receive", "lot_id": "flour-a", "grams": 1000},
+    {"op_id": "r2", "type": "receive", "lot_id": "flour-b", "grams": 600},
+    {"op_id": "b1", "type": "blend",
+     "inputs": [{"lot_id": "flour-a", "grams": 400}, {"lot_id": "flour-b", "grams": 200}],
+     "outputs": [{"lot_id": "dough-x", "grams": 600}]},
+    {"op_id": "s1", "type": "serve", "lot_id": "dough-x", "grams": 150, "venue": "hall"},
+    {"op_id": "b2", "type": "blend",
+     "inputs": [{"lot_id": "dough-x", "grams": 300}, {"lot_id": "flour-a", "grams": 100}],
+     "outputs": [{"lot_id": "dough-y", "grams": 400}]},
+    {"op_id": "s2", "type": "serve", "lot_id": "dough-y", "grams": 80, "venue": "annex"}
+  ]
+}
