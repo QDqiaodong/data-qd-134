@@ -152,3 +152,45 @@ VE_MEMORY_FULL_SCALE=1 .venv/bin/python -m unittest tests.ve_test_memory -v   # 
 逐项核对）、30 层菱形反指数路径证明、库存逐项验收（部分领用/多输出/耗尽再建/
 超量/批中回滚）、召回联动（隔离整批、双根不重复计数、顺序无关、召回后重放忽略）、
 线程与进程双组召回-送达竞速、并发报告快照与提交前故障重试。
+
+# 支付与银行到账核销（venue-clearing）
+
+独立于占用、电能与召回的第四条管线：导入支付（带别名）与银行到账（带附言引用），
+仅当**场地、币种、金额全等且别名与附言项有交集**时生成候选边；在人工绑定与
+候选图**全部最大基数匹配**的解空间上分类每个顶点，绝不把一次求得的匹配当成唯一
+核销结果，也不靠记录行序或任取一个对端。Python 3.11+、仅标准库，契约见
+[clearing-contract.md](docs/clearing-contract.md)，图索引、分量维护与全解空间判定
+结构及备选设计代价见 [clearing-impl.md](docs/clearing-impl.md)。旧
+`venue-occupancy`、`venue-energy`、`venue-recall` 命令与报告保持原样，四个包
+互不 import，新业务不写入旧库。
+
+```sh
+.venv/bin/venue-clearing init   --db run/clearing.db
+.venv/bin/venue-clearing import --db run/clearing.db --source fixtures/clearing/payments.json
+.venv/bin/venue-clearing import --db run/clearing.db --source fixtures/clearing/credits.json
+.venv/bin/venue-clearing decide --db run/clearing.db --source fixtures/clearing/pin.json
+.venv/bin/venue-clearing report --db run/clearing.db --output run/clearing-report.json
+# 未安装时：PYTHONPATH=src python3 -m venue_clearing.cli init|import|decide|report ...
+```
+
+要点：每文档 ≤2000 条记录、8MB，严格对象形状，拒绝未知字段、重复 JSON 键、
+非三位大写币种与非整数金额；两类 ID 各自全库唯一，同载荷重放忽略、异载荷整批
+拒绝；导入与决定各在单事务内提交或回滚。人工 pin/unpin 后重算**整个受影响原始
+候选分量**，新增到账桥接两个旧分量时合并并重算，绑定不删原始边，解绑后旧 pin
+重试不会重新绑定。`maximum_pairs` = 绑定数 + 剩余图最大匹配数；`generation`
+只随真正写入的新来源/新决定加一。报告在单一读快照流式输出，原子替换且失败保留
+旧文件。
+
+```sh
+.venv/bin/python -m unittest tests.vc_test_source tests.vc_test_classify \
+  tests.vc_test_decisions tests.vc_test_linkage tests.vc_test_locality \
+  tests.vc_test_cli tests.vc_test_scale -v
+VC_SCALE=1 .venv/bin/python -m unittest tests.vc_test_scale -v    # 20 万顶点 / 100 万边
+```
+
+测试含与**独立穷举 oracle** 的对拍（3×3 以内穷举全部图、7×7 随机图、随机
+导入/绑定序列），2^400 个最大匹配的构造证明不枚举解空间，来源层的两种到达顺序
+/别名乱序重试/同额异币种异场地/批末冲突，决定层的占用冲突/解绑/旧 pin 重试/
+批中回滚，联动层的 2×2 歧义→绑定→forced→解绑恢复、桥接合并、写到一半故障的
+全层回滚与重开，以及局部操作行计数在无关分量增长时逐项不变（20 万顶点库上局部
+导入仍约 5 ms）。

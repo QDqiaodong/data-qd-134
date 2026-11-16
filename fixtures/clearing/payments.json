@@ -1,0 +1,33 @@
+{
+  "payments": [
+    {
+      "payment_id": "P-100",
+      "venue": "hall",
+      "currency": "USD",
+      "amount_minor": 12000,
+      "aliases": [
+        "REF-A",
+        "REF-B"
+      ]
+    },
+    {
+      "payment_id": "P-200",
+      "venue": "hall",
+      "currency": "USD",
+      "amount_minor": 12000,
+      "aliases": [
+        "REF-B"
+      ]
+    },
+    {
+      "payment_id": "P-300",
+      "venue": "hall",
+      "currency": "EUR",
+      "amount_minor": 12000,
+      "aliases": [
+        "REF-C"
+      ]
+    }
+  ],
+  "credits": []
+}

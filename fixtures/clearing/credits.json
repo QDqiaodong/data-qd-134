@@ -1,0 +1,60 @@
+{
+  "credits": [
+    {
+      "credit_id": "C-1",
+      "venue": "hall",
+      "currency": "USD",
+      "amount_minor": 12000,
+      "references": [
+        "REF-A"
+      ]
+    },
+    {
+      "credit_id": "C-2",
+      "venue": "hall",
+      "currency": "USD",
+      "amount_minor": 12000,
+      "references": [
+        "REF-B",
+        "REF-A"
+      ]
+    },
+    {
+      "credit_id": "C-3",
+      "venue": "hall",
+      "currency": "USD",
+      "amount_minor": 12000,
+      "references": [
+        "REF-C"
+      ]
+    },
+    {
+      "credit_id": "C-4",
+      "venue": "annex",
+      "currency": "EUR",
+      "amount_minor": 12000,
+      "references": [
+        "REF-C"
+      ]
+    },
+    {
+      "credit_id": "C-5",
+      "venue": "hall",
+      "currency": "USD",
+      "amount_minor": 10000,
+      "references": [
+        "REF-A"
+      ]
+    },
+    {
+      "credit_id": "C-9",
+      "venue": "annex",
+      "currency": "USD",
+      "amount_minor": 999,
+      "references": [
+        "REF-Z"
+      ]
+    }
+  ],
+  "payments": []
+}

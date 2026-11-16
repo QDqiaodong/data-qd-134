@@ -1,0 +1,5 @@
+{
+  "decisions": [
+    {"decision_id": "pin-1", "op": "pin", "payment_id": "P-100", "credit_id": "C-1"}
+  ]
+}

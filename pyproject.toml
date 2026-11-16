@@ -11,5 +11,6 @@ dependencies = []
 venue-occupancy = "venue_occupancy.cli:main"
 venue-energy = "venue_energy.cli:main"
 venue-recall = "venue_recall.cli:main"
+venue-clearing = "venue_clearing.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
