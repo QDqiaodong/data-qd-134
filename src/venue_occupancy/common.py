@@ -32,12 +32,16 @@ def read(path):
     return data,hashlib.sha256(raw).hexdigest()
 
 def save(path,report):
+    save_stream(path,lambda stream:json.dump(report,stream,sort_keys=True,ensure_ascii=False,allow_nan=False,indent=2))
+
+def save_stream(path,write):
+    """Publish a document atomically, letting the caller stream the body."""
     dest=Path(path)
     if dest.is_symlink():raise ValueError('output cannot be a symlink')
     dest.parent.mkdir(parents=True,exist_ok=True);temp=None
     try:
         with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=dest.parent,delete=False) as stream:
-            temp=stream.name;json.dump(report,stream,sort_keys=True,ensure_ascii=False,allow_nan=False,indent=2);stream.write('\n')
+            temp=stream.name;write(stream);stream.write('\n')
         os.replace(temp,dest)
     finally:
         if temp and os.path.exists(temp):os.unlink(temp)

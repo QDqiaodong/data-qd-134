@@ -1,5 +1,5 @@
 
-import copy,json,unittest,tempfile,subprocess,sys,hashlib
+import copy,json,os,unittest,tempfile,subprocess,sys,hashlib
 from pathlib import Path
 from venue_occupancy.model import analyze
 ROOT=Path(__file__).resolve().parents[1]
@@ -29,7 +29,10 @@ class Business(unittest.TestCase):
 
 class Command(unittest.TestCase):
     def call(self,source,output):
-        return subprocess.run([sys.executable,'-m','venue_occupancy.cli','--source',str(source),'--output',str(output)],capture_output=True,text=True)
+        environment=dict(os.environ)
+        source_root=str(ROOT/'src')
+        environment['PYTHONPATH']=source_root+os.pathsep+environment.get('PYTHONPATH','')
+        return subprocess.run([sys.executable,'-m','venue_occupancy.cli','--source',str(source),'--output',str(output)],capture_output=True,text=True,env=environment)
     def test_installed_cli_replay(self):
         with tempfile.TemporaryDirectory() as td:
             out=Path(td)/'out.json';src=ROOT/'fixtures/input.json';r=self.call(src,out);self.assertEqual(r.returncode,0,r.stderr);first=out.read_bytes();report=json.loads(first);self.assertEqual(report['source_sha256'],hashlib.sha256(src.read_bytes()).hexdigest());self.assertEqual(self.call(src,out).returncode,0);self.assertEqual(first,out.read_bytes())
