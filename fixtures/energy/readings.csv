@@ -1,0 +1,10 @@
+meter_id,read_id,observed_at,register_wh
+hall-main,h2,946774800,500
+hall-main,h1,946771200,9500
+hall-main,h0,946767600,7500
+hall-solar,s1,946771200,200
+hall-solar,s1,946771200,200
+hall-solar,s0,946767600,100
+hall-solar,s2,949334400,200
+annex-main,a1,947899800,30
+annex-main,a0,947889000,0

@@ -1,0 +1,22 @@
+{
+  "meters": [
+    {
+      "meter_id": "hall-main",
+      "venue": "hall",
+      "modulus_wh": 10000,
+      "max_watts": 5000
+    },
+    {
+      "meter_id": "hall-solar",
+      "venue": "hall",
+      "modulus_wh": 1000,
+      "max_watts": 800
+    },
+    {
+      "meter_id": "annex-main",
+      "venue": "annex",
+      "modulus_wh": 10000,
+      "max_watts": 2000
+    }
+  ]
+}

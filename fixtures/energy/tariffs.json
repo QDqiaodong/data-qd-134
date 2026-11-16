@@ -1,0 +1,25 @@
+{
+  "tariffs": [
+    {
+      "venue": "hall",
+      "start": 946684800,
+      "end": 947894400,
+      "cost_micro_per_kwh": 120000,
+      "carbon_mg_per_kwh": 450000
+    },
+    {
+      "venue": "hall",
+      "start": 947894400,
+      "end": 4102444800,
+      "cost_micro_per_kwh": 150000,
+      "carbon_mg_per_kwh": 380000
+    },
+    {
+      "venue": "annex",
+      "start": 946684800,
+      "end": 4102444800,
+      "cost_micro_per_kwh": 90000,
+      "carbon_mg_per_kwh": 520000
+    }
+  ]
+}

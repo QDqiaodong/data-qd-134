@@ -83,3 +83,37 @@ dataset.py 衔接三段事务，cli.py 衔接命令行。fixtures 为明确自�
 ## 业务与样例结果
 
 半开预订区间裁剪到明确统计范围；hall峰值4、超容5 tick，预订总量55 unit-tick，空场地也保留零占用段。
+
+# 场地电能结算（venue-energy audit）
+
+独立于占用管道的第二条管线：**只用电表寄存器读数**结算，不从预订量或容量推算用电，
+按场地、UTC 自然月输出实测 Wh、成本微单位、碳排 mg 与数据完整性。Python 3.11+、仅标准库，
+输入输出契约见 [energy-contract.md](docs/energy-contract.md)，排序/去重结构与资源论证见
+[energy-impl.md](docs/energy-impl.md)。旧 `venue-occupancy` 命令与报告保持原样，两个包互不 import。
+
+```sh
+.venv/bin/venue-energy audit \
+  --meters fixtures/energy/meters.json \
+  --readings fixtures/energy/readings.csv \
+  --tariffs fixtures/energy/tariffs.json \
+  --output run/energy-report.json
+# 未安装时：PYTHONPATH=src python3 -m venue_energy.cli audit ...
+```
+
+要点：相邻读数按 `E=R1-R0+k*modulus_wh` 枚举非负 k，结合 `max_watts` 功率界，
+**恰有一个可行解释才结算**；零个或多个可行解释的区间标记为不确定、排除其电量，
+并把覆盖到的每个 UTC 月标 `complete=false`，绝不默认零回绕/最少回绕。有效区间按 UTC
+月界与费率边界切片，整数 Wh 按片时长比例下取整、余数按时间先后逐 Wh 分配且各片之和守恒；
+成本/碳排按月以精确分数累加后四舍五入。重复 read_id 忽略、冲突 read_id 或同表同时刻
+异读数整次拒绝。500 万行下内存不随行数增长（实测峰值约 33 MiB，上限 128 MiB），
+外部排序 run 落临时目录并在结束/异常时清理，输出原子替换、失败保留旧文件。
+
+```sh
+.venv/bin/python -m unittest tests.ve_test_engine tests.ve_test_oracle \
+  tests.ve_test_contract tests.ve_test_cli tests.ve_test_memory -v
+VE_MEMORY_FULL_SCALE=1 .venv/bin/python -m unittest tests.ve_test_memory -v   # 500 万行全量
+```
+
+测试含独立小规模全量 oracle（`tests/ve_test_oracle.py`，以 `Fraction` 独立重算逐项核对，
+并强制极小缓冲触发多级归并）、乱序/重复/冲突、零与多回绕、跨费率跨月余数分配、
+空/重叠费率拒绝，以及子进程 ru_maxrss 大规模内存对照（`tests/ve_memory_probe.py`）。

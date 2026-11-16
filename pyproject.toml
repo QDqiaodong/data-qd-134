@@ -9,5 +9,6 @@ requires-python = ">=3.11"
 dependencies = []
 [project.scripts]
 venue-occupancy = "venue_occupancy.cli:main"
+venue-energy = "venue_energy.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
